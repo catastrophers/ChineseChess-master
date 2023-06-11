@@ -768,15 +768,19 @@ public class ChessBoardMain extends JFrame
             turn_num++;
             play = 1 - play; //交换双方
             //对手是否为电脑
-            if (android[play])   //android[play] //play==1
+            if (android[play])
             {
                 computeThinkStart();
             }
+
+//            if (play==1)
+//            {
+//                computeThinkStart();
+//            }
 //            else
 //            {
 //                apiThink();
 //            }
-
         }
     }
 
@@ -865,7 +869,7 @@ public class ChessBoardMain extends JFrame
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
 
                 String requestBoard = "position fen ";
-                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 12";
+                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 5";
 //                System.out.println(requestBoard);
                 String tmp = processEngine.getInformation(requestBoard);
                 System.out.println(tmp);
