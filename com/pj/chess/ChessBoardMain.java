@@ -761,11 +761,15 @@ public class ChessBoardMain extends JFrame
             turn_num++;
             play = 1 - play; //交换双方
             //对手是否为电脑
-            if (android[play])
+            if (play==1)   //android[play]
             {
-                //computeThinkStart();
+                computeThinkStart();
+            }
+            else
+            {
                 apiThink();
             }
+
         }
     }
 
@@ -835,22 +839,15 @@ public class ChessBoardMain extends JFrame
                 _AIThink.setLocalVariable(computerLevel, chessParamCont, moveHistory);
                 _AIThink.launchTimer();
                 _AIThink.run();
-//                for(int i=0;i<10;i++)
-//                {
-//                    for(int j=0;j<9;j++)
-//                    {
-//                        System.out.print(chessParamCont.board[i*9+j]+" ");
-//                    }
-//                    System.out.println();
-//                }
-//
-//                System.out.println(moveHistory.getMoveNode().destChess);
+
                 moveHistory = moveHistory.getNextLink();
                 computeAIMoving(moveHistory);
             }
         }.start();
     }
+
     private ProcessEngine processEngine = new ProcessEngine("pikafish-avx2.exe");
+
     private void apiThink()
     {
         new Thread()
@@ -861,20 +858,15 @@ public class ChessBoardMain extends JFrame
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
 
                 String requestBoard = "position fen ";
-                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w")+"\ngo depth 5";
+                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 10";
 //                System.out.println(requestBoard);
                 String tmp = processEngine.getInformation(requestBoard);
                 System.out.println(tmp);
 //                processEngine.writeCmd("quit");
                 int src = (9 - (int) (tmp.charAt(10) - 48)) * 9 + (int) (tmp.charAt(9) - 97);
                 int dest = (9 - (int) (tmp.charAt(12) - 48)) * 9 + (int) (tmp.charAt(11) - 97);
-                //String requestCmd = "go infinite";
-                //processEngine.getInformation(requestCmd);
-//                processEngine.getInformation(requestBoard);
-//                processEngine.getInformation("uci");
 
-//                String requestCmd = "bench";
-//                processEngine.getInformation(requestCmd);
+                //云库
 //                String run = null;
 //                try {
 //                    run = api.run("http://www.chessdb.cn/chessdb.php?action=querybest&board=" + requestBoard);
