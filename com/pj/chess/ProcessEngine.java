@@ -18,7 +18,7 @@ public class ProcessEngine
     {
         try
         {
-            process= Runtime.getRuntime().exec(new File(cmd).toString());
+            process= Runtime.getRuntime().exec(cmd);
             stdin = process.getOutputStream();
         }
         catch (IOException e)
