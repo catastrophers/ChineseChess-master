@@ -867,6 +867,7 @@ public class ChessBoardMain extends JFrame
 //                processEngine.getInformation(requestBoard);
                 String requestCmd = "bench";
                 processEngine.getInformation(requestCmd);
+                processEngine.getInformation(requestCmd);
 //                String run = null;
 //                try {
 //                    run = api.run("http://www.chessdb.cn/chessdb.php?action=querybest&board=" + requestBoard);
