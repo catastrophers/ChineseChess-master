@@ -14,11 +14,12 @@ public class ProcessEngine
     {
 
     }
+
     public ProcessEngine(String cmd)
     {
         try
         {
-            process= Runtime.getRuntime().exec(cmd);
+            process = Runtime.getRuntime().exec(cmd);
             stdin = process.getOutputStream();
         }
         catch (IOException e)
@@ -27,27 +28,29 @@ public class ProcessEngine
         }
     }
 
-    public void getInformation(String input)
+    public String getInformation(String input)
     {
-        input+="\n";
+        input += "\n";
         try
         {
             stdin.write(input.getBytes());
             stdin.flush();
             String line = null;
+            String tmp = "";
             br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while ((line = br.readLine()) != null ) {
-                System.out.println(1);
+            brError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            while ((line = br.readLine()) != null || (line = brError.readLine()) != null)
+            {
                 //输出exe输出的信息以及错误信息
-                System.out.println(line);
+                tmp = line;
             }
+            return tmp;
         }
         catch (IOException e)
         {
             throw new RuntimeException(e);
         }
     }
-
 
 
 }
