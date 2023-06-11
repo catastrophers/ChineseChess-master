@@ -37,6 +37,7 @@ public class ProcessEngine
             String line = null;
             br = new BufferedReader(new InputStreamReader(process.getInputStream()));
             while ((line = br.readLine()) != null ) {
+                System.out.println(1);
                 //输出exe输出的信息以及错误信息
                 System.out.println(line);
             }
