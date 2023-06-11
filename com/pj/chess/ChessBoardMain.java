@@ -210,6 +210,12 @@ public class ChessBoardMain extends JFrame
         button.addActionListener(my);
         Button computerMove = new Button("立即走棋");
         computerMove.addActionListener(my);
+        Button last = new Button("上一步");
+        last.addActionListener(my);
+        constrol.add(last);
+        Button next = new Button("下一步");
+        last.addActionListener(my);
+        constrol.add(next);
         constrol.add(button);
         constrol.add(computerMove);
         this.add(constrol, BorderLayout.SOUTH);
@@ -282,7 +288,7 @@ public class ChessBoardMain extends JFrame
 
         JCheckBoxMenuItem isSoundBox = new JCheckBoxMenuItem("音效", isSound);
 
-
+        JMenu review = new JMenu("复盘");
         ButtonGroup hashSizeGroup = new ButtonGroup();
         hashSizeGroup.add(hashSize2M);
         hashSizeGroup.add(hashSize32M);
@@ -307,6 +313,7 @@ public class ChessBoardMain extends JFrame
         menu_set.add(backstageThink);
         menu_set.add(isSoundBox);
         jmb.add(menu_set);
+        jmb.add(review);
         return jmb;
     }
 
@@ -761,14 +768,14 @@ public class ChessBoardMain extends JFrame
             turn_num++;
             play = 1 - play; //交换双方
             //对手是否为电脑
-            if (play==1)   //android[play]
+            if (android[play])   //android[play] //play==1
             {
                 computeThinkStart();
             }
-            else
-            {
-                apiThink();
-            }
+//            else
+//            {
+//                apiThink();
+//            }
 
         }
     }
@@ -858,7 +865,7 @@ public class ChessBoardMain extends JFrame
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
 
                 String requestBoard = "position fen ";
-                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 10";
+                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 12";
 //                System.out.println(requestBoard);
                 String tmp = processEngine.getInformation(requestBoard);
                 System.out.println(tmp);
