@@ -861,9 +861,11 @@ public class ChessBoardMain extends JFrame
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
                 ProcessEngine processEngine = new ProcessEngine("pikafish-avx2.exe");
                 String requestBoard = "position fen ";
-                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w");
-                System.out.println(requestBoard);
-                String tmp=processEngine.getInformation(requestBoard+"\ngo depth 25\nquit");
+                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w")+"\ngo depth 5";
+//                System.out.println(requestBoard);
+                String tmp = processEngine.getInformation(requestBoard);
+                System.out.println(tmp);
+                processEngine.writeCmd("quit");
                 int src = (9 - (int) (tmp.charAt(10) - 48)) * 9 + (int) (tmp.charAt(9) - 97);
                 int dest = (9 - (int) (tmp.charAt(12) - 48)) * 9 + (int) (tmp.charAt(11) - 97);
                 //String requestCmd = "go infinite";
@@ -882,8 +884,8 @@ public class ChessBoardMain extends JFrame
 //                }
 //                int src = (9 - (int) (run.charAt(6) - 48)) * 9 + (int) (run.charAt(5) - 97);
 //                int dest = (9 - (int) (run.charAt(8) - 48)) * 9 + (int) (run.charAt(7) - 97);
-                MoveNode apiNode=new MoveNode(src,dest,chessParamCont.board[src],chessParamCont.board[dest]);
-                NodeLink nodeLinkTemp = new NodeLink(play,apiNode,transTable.boardZobrist32,transTable.boardZobrist64);
+                MoveNode apiNode = new MoveNode(src, dest, chessParamCont.board[src], chessParamCont.board[dest]);
+                NodeLink nodeLinkTemp = new NodeLink(play, apiNode, transTable.boardZobrist32, transTable.boardZobrist64);
                 nodeLinkTemp.setLastLink(moveHistory);
                 moveHistory.setNextLink(nodeLinkTemp);
                 moveHistory = moveHistory.getNextLink();

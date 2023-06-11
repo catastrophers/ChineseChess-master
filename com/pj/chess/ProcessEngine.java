@@ -5,7 +5,6 @@ import java.io.*;
 public class ProcessEngine
 {
     private Process process;
-    private OutputStream stdin;
     private BufferedReader br = null;
     private BufferedReader brError = null;
 
@@ -20,7 +19,6 @@ public class ProcessEngine
         try
         {
             process = Runtime.getRuntime().exec(cmd);
-            stdin = process.getOutputStream();
         }
         catch (IOException e)
         {
@@ -33,16 +31,21 @@ public class ProcessEngine
         input += "\n";
         try
         {
-            stdin.write(input.getBytes());
-            stdin.flush();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            writer.write(input);
+            writer.flush();
             String line = null;
             String tmp = "";
             br = new BufferedReader(new InputStreamReader(process.getInputStream()));
             brError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            while ((line = br.readLine()) != null || (line = brError.readLine()) != null)
+
+            while ((line = br.readLine()) != null)
             {
                 //输出exe输出的信息以及错误信息
                 tmp = line;
+                if(tmp.charAt(0)=='b')
+                    break;
+                System.out.println(tmp);
             }
             return tmp;
         }
@@ -52,5 +55,19 @@ public class ProcessEngine
         }
     }
 
+    public void writeCmd(String cmd)
+    {
+        cmd += "\n";
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            writer.write(cmd);
+            writer.flush();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
