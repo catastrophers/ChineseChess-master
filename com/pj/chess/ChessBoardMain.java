@@ -853,7 +853,7 @@ public class ChessBoardMain extends JFrame
 
     private void apiThink()
     {
-        ProcessEngine processEngine = new ProcessEngine("C:\\Users\\17419\\Desktop\\Pikafish\\pikafish-avx2.exe");
+        ProcessEngine processEngine = new ProcessEngine("pikafish-avx2.exe");
         new Thread()
         {
             public void run()

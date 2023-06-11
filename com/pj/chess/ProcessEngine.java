@@ -1,9 +1,6 @@
 package com.pj.chess;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 
 public class ProcessEngine
 {
@@ -21,7 +18,7 @@ public class ProcessEngine
     {
         try
         {
-            process= Runtime.getRuntime().exec(cmd);
+            process= Runtime.getRuntime().exec(new File(cmd).toString());
             stdin = process.getOutputStream();
         }
         catch (IOException e)
