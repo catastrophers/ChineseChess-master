@@ -850,7 +850,7 @@ public class ChessBoardMain extends JFrame
             }
         }.start();
     }
-
+    private ProcessEngine processEngine = new ProcessEngine("pikafish-avx2.exe");
     private void apiThink()
     {
         new Thread()
@@ -859,13 +859,13 @@ public class ChessBoardMain extends JFrame
             {
 //                ApiTool api = new ApiTool();
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
-                ProcessEngine processEngine = new ProcessEngine("pikafish-avx2.exe");
+
                 String requestBoard = "position fen ";
                 requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w")+"\ngo depth 5";
 //                System.out.println(requestBoard);
                 String tmp = processEngine.getInformation(requestBoard);
                 System.out.println(tmp);
-                processEngine.writeCmd("quit");
+//                processEngine.writeCmd("quit");
                 int src = (9 - (int) (tmp.charAt(10) - 48)) * 9 + (int) (tmp.charAt(9) - 97);
                 int dest = (9 - (int) (tmp.charAt(12) - 48)) * 9 + (int) (tmp.charAt(11) - 97);
                 //String requestCmd = "go infinite";
