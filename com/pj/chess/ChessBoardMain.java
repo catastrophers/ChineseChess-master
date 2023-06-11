@@ -863,7 +863,7 @@ public class ChessBoardMain extends JFrame
                 String requestBoard = "position fen ";
                 requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w");
                 System.out.println(requestBoard);
-                String tmp=processEngine.getInformation(requestBoard+"\ngo depth 5\nquit");
+                String tmp=processEngine.getInformation(requestBoard+"\ngo depth 25\nquit");
                 int src = (9 - (int) (tmp.charAt(10) - 48)) * 9 + (int) (tmp.charAt(9) - 97);
                 int dest = (9 - (int) (tmp.charAt(12) - 48)) * 9 + (int) (tmp.charAt(11) - 97);
                 //String requestCmd = "go infinite";
