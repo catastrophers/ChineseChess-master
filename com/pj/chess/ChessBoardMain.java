@@ -94,13 +94,22 @@ public class ChessBoardMain extends JFrame
     ChessParam chessParamCont;
     private static boolean isSound = false;
 
+    static boolean isReview=false;
     public void initHandler()
     {
         String startFen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
 
 //		String startFen="c6c5  9/CP2k4/9/9/9/9/9/9/9/4K4 b - - 0 1";
 //		Tools.parseFENtoBoardZobrist(fenStr);
-        startFen = readSaved();
+//        startFen = readSaved();
+        if(isReview)
+        {
+            isReview=false;
+            String tmp=readSaved();
+            while(moveHistory.getLastLink()!=null)
+                moveHistory=moveHistory.getLastLink();
+        }
+
 
         String[] fenArray = Tools.fenToFENArray(startFen);
         int[] boardTemp = Tools.parseFEN(fenArray[1]);
@@ -212,12 +221,17 @@ public class ChessBoardMain extends JFrame
         computerMove.addActionListener(my);
         Button last = new Button("上一步");
         last.addActionListener(my);
-        constrol.add(last);
         Button next = new Button("下一步");
-        last.addActionListener(my);
+        next.addActionListener(my);
+        Button review = new Button("复盘");
+        review.addActionListener(my);
+
+        constrol.add(review);
+        constrol.add(last);
         constrol.add(next);
         constrol.add(button);
         constrol.add(computerMove);
+
         this.add(constrol, BorderLayout.SOUTH);
 
         this.addWindowListener(my);
@@ -288,7 +302,7 @@ public class ChessBoardMain extends JFrame
 
         JCheckBoxMenuItem isSoundBox = new JCheckBoxMenuItem("音效", isSound);
 
-        JMenu review = new JMenu("复盘");
+
         ButtonGroup hashSizeGroup = new ButtonGroup();
         hashSizeGroup.add(hashSize2M);
         hashSizeGroup.add(hashSize32M);
@@ -313,7 +327,6 @@ public class ChessBoardMain extends JFrame
         menu_set.add(backstageThink);
         menu_set.add(isSoundBox);
         jmb.add(menu_set);
-        jmb.add(review);
         return jmb;
     }
 
@@ -397,8 +410,34 @@ public class ChessBoardMain extends JFrame
                     _AIThink.setStop();
                 }
             }
-
-
+            else if(sour.getLabel().equals("上一步"))
+            {
+                if (moveHistory.getMoveNode() != null)
+                {
+                    MoveNode moveNode = moveHistory.getMoveNode();
+                    unMoveNode(moveNode);
+                    moveHistory = moveHistory.getLastLink();
+                    turn_num--;
+                    play = 1 - play; //交换双方
+                }
+            }
+            else if(sour.getLabel().equals("下一步"))
+            {
+                if (moveHistory.getNextLink().getMoveNode() != null)
+                {
+                    MoveNode moveNode = moveHistory.getNextLink().getMoveNode();
+                    showMoveNode(moveNode);
+                    moveHistory = moveHistory.getNextLink();
+                    turn_num++;
+                    play = 1 - play; //交换双方
+                }
+            }
+            else if(sour.getLabel().equals("复盘"))
+            {
+                isReview=true;
+                dispose();
+                new ChessBoardMain();
+            }
         }
 
         private boolean checkZFPath(int srcSite, int destSite, int play)
@@ -575,11 +614,13 @@ public class ChessBoardMain extends JFrame
         if (JOptionPane.showConfirmDialog(this, msg + "是否继续？", "信息",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
         {
+            Tools.saveFEN(chessParamCont.board, moveHistory);
             dispose();
             new ChessBoardMain();
         }
         else
         {
+            Tools.saveFEN(chessParamCont.board, moveHistory);
             dispose();
         }
     }
@@ -768,19 +809,20 @@ public class ChessBoardMain extends JFrame
             turn_num++;
             play = 1 - play; //交换双方
             //对手是否为电脑
-            if (android[play])
+//            if (android[play])
+//            {
+//                //computeThinkStart();
+//                apiThink();
+//            }
+
+            if (play==1)
             {
                 computeThinkStart();
             }
-
-//            if (play==1)
-//            {
-//                computeThinkStart();
-//            }
-//            else
-//            {
-//                apiThink();
-//            }
+            else
+            {
+                apiThink();
+            }
         }
     }
 
@@ -976,9 +1018,9 @@ public class ChessBoardMain extends JFrame
             }
             if (fen != null)
             {
-                if (JOptionPane.showConfirmDialog(this, "检测到有存档是否继续上次游戏?", "信息",
-                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-                {
+//                if (JOptionPane.showConfirmDialog(this, "检测到有存档是否继续上次游戏?", "信息",
+//                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+//                {
                     ObjectInputStream objInput = null;
                     try
                     {
@@ -997,12 +1039,12 @@ public class ChessBoardMain extends JFrame
                             objInput.close();
                         }
                     }
-                }
-                else
-                {
-                    chessFile.deleteOnExit();
-                    fen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
-                }
+//                }
+//                else
+//                {
+//                    chessFile.deleteOnExit();
+//                    fen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
+//                }
             }
         }
         catch (Exception e)
