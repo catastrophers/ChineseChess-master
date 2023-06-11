@@ -68,7 +68,7 @@ public abstract class  EvaluateCompute {
 		} 
 		return mobility;
 	}
-	protected BitBoard chessAllMove(int chessRole, int srcSite, int play) {
+	public BitBoard chessAllMove(int chessRole, int srcSite, int play) {
 		BitBoard bitBoard=null;
 		switch (chessRole) {
 		case REDCHARIOT:

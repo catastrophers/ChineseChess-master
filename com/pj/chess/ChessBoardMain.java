@@ -50,6 +50,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 
+import com.pj.chess.evaluate.EvaluateComputeEndGame;
+import com.pj.chess.evaluate.EvaluateComputeMiddle;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
@@ -60,8 +62,7 @@ import com.pj.chess.evaluate.EvaluateCompute;
 import com.pj.chess.evaluate.EvaluateComputeMiddleGame;
 import com.pj.chess.zobrist.TranspositionTable;
 
-public class ChessBoardMain extends JFrame
-{
+public class ChessBoardMain extends JFrame {
 
     private static final long serialVersionUID = 1L;
     public static final String[] chessName = new String[]{
@@ -84,6 +85,10 @@ public class ChessBoardMain extends JFrame
     private static ComputerLevel computerLevel = ComputerLevel.greenHand; //默认
     boolean isBackstageThink = false;
     boolean computeFig = false;
+
+    private List<Integer> realTips;
+    private List<Integer> realTipsLast;
+
     TranspositionTable transTable;
     ChessMovePlay cmp = null;
     AICoreHandler _AIThink = new AICoreHandler();
@@ -94,20 +99,19 @@ public class ChessBoardMain extends JFrame
     ChessParam chessParamCont;
     private static boolean isSound = false;
 
-    static boolean isReview=false;
-    public void initHandler()
-    {
+    static boolean isReview = false;
+
+    public void initHandler() {
         String startFen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
 
 //		String startFen="c6c5  9/CP2k4/9/9/9/9/9/9/9/4K4 b - - 0 1";
 //		Tools.parseFENtoBoardZobrist(fenStr);
 //        startFen = readSaved();
-        if(isReview)
-        {
-            isReview=false;
-            String tmp=readSaved();
-            while(moveHistory.getLastLink()!=null)
-                moveHistory=moveHistory.getLastLink();
+        if (isReview) {
+            isReview = false;
+            String tmp = readSaved();
+            while (moveHistory.getLastLink() != null)
+                moveHistory = moveHistory.getLastLink();
         }
 
 
@@ -118,18 +122,15 @@ public class ChessBoardMain extends JFrame
         //清除所有界面图片
 //		clearBoardIcon();
         //初始界面棋子
-        for (int i = 0; i < boardTemp.length; i++)
-        {
-            if (boardTemp[i] > 0)
-            {
+        for (int i = 0; i < boardTemp.length; i++) {
+            if (boardTemp[i] > 0) {
                 this.setBoardIconUnchecked(i, boardTemp[i]);
             }
         }
 
         //初始局面(要把棋子摆好后才能计算局面值)
         transTable = new TranspositionTable();
-        if (moveHistory == null)
-        {
+        if (moveHistory == null) {
             moveHistory = new NodeLink(1 - play, transTable.boardZobrist32, transTable.boardZobrist64);
         }
         play = 1 - moveHistory.play;
@@ -139,23 +140,16 @@ public class ChessBoardMain extends JFrame
 
     JPanel jpanelContent;
 
-    private void setCenter()
-    {
-        if (jpanelContent != null)
-        {
+    private void setCenter() {
+        if (jpanelContent != null) {
             this.remove(jpanelContent);
         }
-        jpanelContent = new javax.swing.JPanel()
-        {
-            protected void paintComponent(Graphics g)
-            {
-                try
-                {
+        jpanelContent = new javax.swing.JPanel() {
+            protected void paintComponent(Graphics g) {
+                try {
                     BufferedImage img = ImageIO.read(getClass().getResource("/images/MAIN.GIF"));
                     g.drawImage(img, 0, 0, null);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -195,8 +189,7 @@ public class ChessBoardMain extends JFrame
         panel.setOpaque(false);
         jpanelContent.add(panel, BorderLayout.CENTER);
 
-        for (int i = 0; i < BOARDSIZE90; i++)
-        {
+        for (int i = 0; i < BOARDSIZE90; i++) {
             JLabel p = new JLabel();
             p.addMouseListener(my);
             p.setBackground(Color.red);
@@ -207,8 +200,7 @@ public class ChessBoardMain extends JFrame
         this.add(jpanelContent, BorderLayout.CENTER);
     }
 
-    public ChessBoardMain()
-    {
+    public ChessBoardMain() {
         super("中国象棋");
         setCenter();
 
@@ -250,8 +242,7 @@ public class ChessBoardMain extends JFrame
     JRadioButtonMenuItem hashSize32M = new JRadioButtonMenuItem("HASH表中", false);
     JRadioButtonMenuItem hashSize64M = new JRadioButtonMenuItem("HASH表大", false);
 
-    private JMenuBar setJMenuBar()
-    {
+    private JMenuBar setJMenuBar() {
         JMenuBar jmb = new JMenuBar();
         JMenu menu_file = new JMenu("文件");
         JMenuItem create = new JMenuItem("新建");
@@ -330,40 +321,63 @@ public class ChessBoardMain extends JFrame
         return jmb;
     }
 
-    public void setBoardIconUnchecked(int site, int chess)
-    {
+    public void setBoardIconUnchecked(int site, int chess) {
 //		site=boardMap[site];
 //		initBoardRelation(site,chess);
-        if (chess == NOTHING)
-        {
+        if (chess == NOTHING) {
             buttons[site].setIcon(null);
-        }
-        else
-        {
+        } else {
             buttons[site].setIcon(getImageIcon(chessIcon[chess]));
         }
     }
 
-    public void setBoardIconChecked(int site, int chess)
-    {
+    public void setBoardIconChecked(int site, int chess) {
         buttons[site].setIcon(getImageIcon(chessIcon[chess] + "S"));
     }
 
-    public void setCheckedLOSS(int play)
-    {
+    //设置提示下子位置
+    public void setTipIcons(List<Integer> list) {
+        for (int i = 0; i < list.size(); i++) {
+            if (chessParamCont.board[list.get(i)] == -1) {//此位置没有棋子
+                buttons[list.get(i)].setIcon(getImageIcon("OOS"));
+            }
+        }
+    }
+
+    //取消下子位置提示
+    public void deleteTipIcons(List<Integer> list) {
+        for (int i = 0; i < list.size(); i++) {
+            if (chessParamCont.board[list.get(i)] == -1) {//此位置没有棋子
+                buttons[list.get(i)].setIcon(getImageIcon("OO"));
+            }
+        }
+    }
+
+    //将提示下棋位置区分敌我
+    public List<Integer> getRealTips(int[] board, int start) {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < board.length; i++) {
+            if (board[i] != 0) {
+                MoveNode moveNode = new MoveNode(start, board[i], chessParamCont.board[start], chessParamCont.board[i]);
+                if (new ChessMovePlay(chessParamCont,transTable,new EvaluateComputeMiddle(chessParamCont)).legalMove(play, moveNode)) {
+                    list.add(i);
+                }
+            }
+        }
+        return list;
+    }
+
+    public void setCheckedLOSS(int play) {
         buttons[chessParamCont.allChess[chessPlay[play]]].setIcon(getImageIcon(chessIcon[chessPlay[play]] + "M"));
     }
 
-    public void clearBoardIcon()
-    {
-        for (int i = 0; i < buttons.length; i++)
-        {
+    public void clearBoardIcon() {
+        for (int i = 0; i < buttons.length; i++) {
             buttons[i].setIcon(null);
         }
     }
 
-    public void initBoardRelation(int destSite, int chess)
-    {
+    public void initBoardRelation(int destSite, int chess) {
 
         chessParamCont.board[destSite] = chess;
         chessParamCont.allChess[chess] = destSite;
@@ -375,75 +389,57 @@ public class ChessBoardMain extends JFrame
 
     }
 
-    public void move(MoveNode moveNode)
-    {
+    public void move(MoveNode moveNode) {
 
-        if (lastTimeCheckedSite != -1)
-        {
+        if (lastTimeCheckedSite != -1) {
             setBoardIconUnchecked(lastTimeCheckedSite, chessParamCont.board[lastTimeCheckedSite]);
         }
         setBoardIconUnchecked(moveNode.srcSite, NOTHING);
         setBoardIconChecked(moveNode.destSite, moveNode.srcChess);
+        deleteTipIcons(realTipsLast);
         lastTimeCheckedSite = moveNode.destSite;
     }
 
-    class ButtonActionListener implements ActionListener, WindowListener, MouseListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
+    class ButtonActionListener implements ActionListener, WindowListener, MouseListener {
+        public void actionPerformed(ActionEvent e) {
             Button sour = (Button) e.getSource();
-            if (sour.getLabel().equals("悔棋"))
-            {
-                if (moveHistory.getMoveNode() != null)
-                {
+            if (sour.getLabel().equals("悔棋")) {
+                if (moveHistory.getMoveNode() != null) {
                     MoveNode moveNode = moveHistory.getMoveNode();
                     unMoveNode(moveNode);
                     moveHistory = moveHistory.getLastLink();
                     turn_num--;
                     play = 1 - play; //交换双方
                 }
-            }
-            else if (sour.getLabel().equals("立即走棋"))
-            {
-                if (_AIThink != null)
-                {
+            } else if (sour.getLabel().equals("立即走棋")) {
+                if (_AIThink != null) {
                     _AIThink.setStop();
                 }
-            }
-            else if(sour.getLabel().equals("上一步"))
-            {
-                if (moveHistory.getMoveNode() != null)
-                {
+            } else if (sour.getLabel().equals("上一步")) {
+                if (moveHistory.getMoveNode() != null) {
                     MoveNode moveNode = moveHistory.getMoveNode();
                     unMoveNode(moveNode);
                     moveHistory = moveHistory.getLastLink();
                     turn_num--;
                     play = 1 - play; //交换双方
                 }
-            }
-            else if(sour.getLabel().equals("下一步"))
-            {
-                if (moveHistory.getNextLink().getMoveNode() != null)
-                {
+            } else if (sour.getLabel().equals("下一步")) {
+                if (moveHistory.getNextLink().getMoveNode() != null) {
                     MoveNode moveNode = moveHistory.getNextLink().getMoveNode();
                     showMoveNode(moveNode);
                     moveHistory = moveHistory.getNextLink();
                     turn_num++;
                     play = 1 - play; //交换双方
                 }
-            }
-            else if(sour.getLabel().equals("复盘"))
-            {
-                isReview=true;
+            } else if (sour.getLabel().equals("复盘")) {
+                isReview = true;
                 dispose();
                 new ChessBoardMain();
             }
         }
 
-        private boolean checkZFPath(int srcSite, int destSite, int play)
-        {
-            if (chessParamCont.board[srcSite] == NOTHING)
-            {
+        private boolean checkZFPath(int srcSite, int destSite, int play) {
+            if (chessParamCont.board[srcSite] == NOTHING) {
                 return false;
             }
 //			int row=chessParamCont.boardBitRow[boardRow[srcSite]];
@@ -458,8 +454,7 @@ public class ChessBoardMain extends JFrame
             return cmp.legalMove(play, moveNode);
         }
 
-        private void unMoveNode(MoveNode moveNode)
-        {
+        private void unMoveNode(MoveNode moveNode) {
             MoveNode unmoveNode = new MoveNode();
             unmoveNode.srcChess = moveNode.destChess;
             unmoveNode.srcSite = moveNode.destSite;
@@ -469,125 +464,105 @@ public class ChessBoardMain extends JFrame
             cmp.unMoveOperate(moveNode);
         }
 
-        private void unMove(MoveNode moveNode)
-        {
-            if (lastTimeCheckedSite != -1)
-            {
+        private void unMove(MoveNode moveNode) {
+            if (lastTimeCheckedSite != -1) {
                 setBoardIconUnchecked(lastTimeCheckedSite, chessParamCont.board[lastTimeCheckedSite]);
             }
-            if (moveNode.srcChess == NOTHING)
-            {
+            if (moveNode.srcChess == NOTHING) {
                 buttons[moveNode.srcSite].setIcon(null);
-            }
-            else
-            {
+            } else {
                 setBoardIconUnchecked(moveNode.srcSite, moveNode.srcChess);
             }
-            if (moveNode.destChess == NOTHING)
-            {
+            if (moveNode.destChess == NOTHING) {
                 buttons[moveNode.destChess].setIcon(null);
-            }
-            else
-            {
+            } else {
                 setBoardIconChecked(moveNode.destSite, moveNode.destChess);
             }
             lastTimeCheckedSite = moveNode.destSite;
         }
 
-        public void windowActivated(WindowEvent arg0)
-        {
+        public void windowActivated(WindowEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
-        public void windowClosed(WindowEvent arg0)
-        {
+        public void windowClosed(WindowEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
-        public void windowClosing(WindowEvent arg0)
-        {
+        public void windowClosing(WindowEvent arg0) {
             // TODO Auto-generated method stub
             System.exit(1);
         }
 
-        public void windowDeactivated(WindowEvent arg0)
-        {
+        public void windowDeactivated(WindowEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
-        public void windowDeiconified(WindowEvent arg0)
-        {
+        public void windowDeiconified(WindowEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
-        public void windowIconified(WindowEvent arg0)
-        {
+        public void windowIconified(WindowEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
-        public void windowOpened(WindowEvent arg0)
-        {
+        public void windowOpened(WindowEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
 
-        public void mouseClicked(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent e) {
             // TODO Auto-generated method stub
 
         }
 
-        public void mouseEntered(MouseEvent e)
-        {
+        public void mouseEntered(MouseEvent e) {
             // TODO Auto-generated method stub
 
         }
 
-        public void mouseExited(MouseEvent e)
-        {
+        public void mouseExited(MouseEvent e) {
             // TODO Auto-generated method stub
 
         }
 
-        public void mousePressed(MouseEvent e)
-        {
-            if (android[play])
-            {
+        public void mousePressed(MouseEvent e) {
+            if (android[play]) {
                 return;
             }
-            for (int i = 0; i < buttons.length; i++)
-            {
+            for (int i = 0; i < buttons.length; i++) {
                 JLabel p = buttons[i];
-                if (p == e.getSource())
-                {
-                    if (chessParamCont.board[i] != NOTHING && (chessParamCont.board[i] & chessPlay[play]) == chessPlay[play])
-                    {//自方子力
-                        if (i != begin)
-                        {
+                if (p == e.getSource()) {
+                    if (chessParamCont.board[i] != NOTHING && (chessParamCont.board[i] & chessPlay[play]) == chessPlay[play]) {//自方子力
+                        if (i != begin) {
                             begin = i;
 
                             setBoardIconChecked(i, chessParamCont.board[i]);   //选中的蓝框
-                            if (lastTimeCheckedSite != -1)
-                            {
+                            EvaluateCompute eva = new EvaluateComputeEndGame(chessParamCont);
+                            BitBoard bitBoardTemp = eva.chessAllMove(chessRoles[chessParamCont.board[i]], i, 1 - play);
+                            int[] tempTip = bitBoardTemp.bitBoardToBoard();
+                            realTips = getRealTips(tempTip, i);
+                            //System.out.println(bitBoardTemp);
+                            setTipIcons(realTips);
+                            if (lastTimeCheckedSite != -1) {
                                 setBoardIconUnchecked(lastTimeCheckedSite, chessParamCont.board[lastTimeCheckedSite]);   //取消选中的蓝框
+                                deleteTipIcons(realTipsLast);
                             }
                             lastTimeCheckedSite = begin;
+                            realTipsLast=realTips;
                         }
                         return;
-                    }
-                    else if (begin == -1)
-                    {
+                    } else if (begin == -1) {
                         return;
                     }
                     end = i;
-                    if (this.checkZFPath(begin, end, play))
-                    {
+                    if (this.checkZFPath(begin, end, play)) {
                         MoveNode moveNode = new MoveNode(begin, end, chessParamCont.board[begin], chessParamCont.board[end], 0);
                         showMoveNode(moveNode);
                         NodeLink nextLink = new NodeLink(play, transTable.boardZobrist32, transTable.boardZobrist64);
@@ -602,273 +577,187 @@ public class ChessBoardMain extends JFrame
 
         }
 
-        public void mouseReleased(MouseEvent e)
-        {
+        public void mouseReleased(MouseEvent e) {
             // TODO Auto-generated method stub
 
         }
     }
 
-    public void gameOverMsg(String msg)
-    {
+    public void gameOverMsg(String msg) {
         if (JOptionPane.showConfirmDialog(this, msg + "是否继续？", "信息",
-                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-        {
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             Tools.saveFEN(chessParamCont.board, moveHistory);
             dispose();
             new ChessBoardMain();
-        }
-        else
-        {
+        } else {
             Tools.saveFEN(chessParamCont.board, moveHistory);
             dispose();
         }
     }
 
-    private ImageIcon getImageIcon(String chessName)
-    {
+    private ImageIcon getImageIcon(String chessName) {
         String path = "/images/" + chessName + ".GIF";
         ImageIcon imageIcon = new ImageIcon(getClass().getResource(path));
         return imageIcon;
     }
 
-    private boolean checkGameOver()
-    {
+    private boolean checkGameOver() {
         boolean isGameOver = false;
         String msg = null;
-        if (moveHistory == null || moveHistory.getMoveNode() == null)
-        {
+        if (moveHistory == null || moveHistory.getMoveNode() == null) {
             msg = (play == BLACKPLAYSIGN ? "黑方" : "红方") + "被残忍的将死！";
             isGameOver = true;
             //自己帅被吃
-        }
-        else if (chessParamCont.allChess[chessPlay[BLACKPLAYSIGN]] == NOTHING || moveHistory.getMoveNode().destChess == chessPlay[BLACKPLAYSIGN])
-        {
+        } else if (chessParamCont.allChess[chessPlay[BLACKPLAYSIGN]] == NOTHING || moveHistory.getMoveNode().destChess == chessPlay[BLACKPLAYSIGN]) {
             isGameOver = true;
             msg = "黑方被完虐！";
-        }
-        else if (chessParamCont.allChess[chessPlay[REDPLAYSIGN]] == NOTHING || moveHistory.getMoveNode().destChess == chessPlay[REDPLAYSIGN])
-        {
+        } else if (chessParamCont.allChess[chessPlay[REDPLAYSIGN]] == NOTHING || moveHistory.getMoveNode().destChess == chessPlay[REDPLAYSIGN]) {
             msg = "红方被完虐！";
             isGameOver = true;
-        }
-        else if (moveHistory.getMoveNode().score == -LONGCHECKSCORE)
-        {
+        } else if (moveHistory.getMoveNode().score == -LONGCHECKSCORE) {
             msg = (play == BLACKPLAYSIGN ? "黑方" : "红方") + "长将判负！";
             isGameOver = true;
-        }
-        else if (moveHistory.getMoveNode().score <= -(maxScore - 2))
-        {
+        } else if (moveHistory.getMoveNode().score <= -(maxScore - 2)) {
             setCheckedLOSS(play);
             msg = (play == BLACKPLAYSIGN ? "黑方" : "红方") + "被残忍的将死！";
             isGameOver = true;
-        }
-        else if (moveHistory.getMoveNode().score >= (maxScore - 2))
-        {
+        } else if (moveHistory.getMoveNode().score >= (maxScore - 2)) {
             setCheckedLOSS(1 - play);
             msg = (play == BLACKPLAYSIGN ? "黑方" : "红方") + "赢得了最终的胜利！";
             isGameOver = true;
-        }
-        else if (chessParamCont.getAttackChessesNum(REDPLAYSIGN) == 0 && chessParamCont.getAttackChessesNum(BLACKPLAYSIGN) == 0)
-        {
+        } else if (chessParamCont.getAttackChessesNum(REDPLAYSIGN) == 0 && chessParamCont.getAttackChessesNum(BLACKPLAYSIGN) == 0) {
             msg = "双方都无攻击棋子此乃和棋！";
             isGameOver = true;
-        }
-        else if (turn_num >= 300)
-        {
+        } else if (turn_num >= 300) {
             msg = "大战300回合未分胜负啊！";
             isGameOver = true;
         }
-        if (isGameOver)
-        {
+        if (isGameOver) {
             launchSound(SoundEffect.LOSS_SOUND);
             gameOverMsg(msg);
-        }
-        else
-        {
+        } else {
             MoveNode moveNode = moveHistory.getMoveNode();
-            if (cmp.checked(1 - play))
-            {//对手是否被将
+            if (cmp.checked(1 - play)) {//对手是否被将
                 launchSound(SoundEffect.CHECKED_SOUND);
-            }
-            else if (moveNode.destChess != NOTHING)
-            {
+            } else if (moveNode.destChess != NOTHING) {
                 launchSound(SoundEffect.CAPTURE_SOUND);
-            }
-            else
-            {
+            } else {
                 launchSound(SoundEffect.MOVE_SOUND);
             }
         }
         return isGameOver;
     }
 
-    class MenuItemActionListener implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
+    class MenuItemActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
             String actionCommand = e.getActionCommand();
-            if ("新建".equals(actionCommand))
-            {
+            if ("新建".equals(actionCommand)) {
                 dispose();
                 new ChessBoardMain();
-            }
-            else if ("保存".equalsIgnoreCase(actionCommand))
-            {
+            } else if ("保存".equalsIgnoreCase(actionCommand)) {
                 Tools.saveFEN(chessParamCont.board, moveHistory);
-            }
-            else if ("菜鸟".equals(actionCommand))
-            {
+            } else if ("菜鸟".equals(actionCommand)) {
                 computerLevel = ComputerLevel.greenHand;
-            }
-            else if ("入门".equals(actionCommand))
-            {
+            } else if ("入门".equals(actionCommand)) {
                 computerLevel = ComputerLevel.introduction;
-            }
-            else if ("业余".equals(actionCommand))
-            {
+            } else if ("业余".equals(actionCommand)) {
                 computerLevel = ComputerLevel.amateur;
-            }
-            else if ("专家".equals(actionCommand))
-            {
+            } else if ("专家".equals(actionCommand)) {
                 computerLevel = ComputerLevel.career;
-            }
-            else if ("大师".equals(actionCommand))
-            {
+            } else if ("大师".equals(actionCommand)) {
                 computerLevel = ComputerLevel.master;
-            }
-            else if ("无敌".equals(actionCommand))
-            {
+            } else if ("无敌".equals(actionCommand)) {
                 computerLevel = ComputerLevel.invincible;
-            }
-            else if ("电脑红方".equals(actionCommand))
-            {
+            } else if ("电脑红方".equals(actionCommand)) {
                 android[REDPLAYSIGN] = !android[REDPLAYSIGN];
-                if (android[REDPLAYSIGN] && (REDPLAYSIGN == play || turn_num <= 0))
-                {
-                    if (turn_num <= 0)
-                    {
+                if (android[REDPLAYSIGN] && (REDPLAYSIGN == play || turn_num <= 0)) {
+                    if (turn_num <= 0) {
                         play = REDPLAYSIGN;
                         moveHistory.play = 1 - REDPLAYSIGN;
                     }
                     computeThinkStart();
                 }
-            }
-            else if ("电脑黑方".equals(actionCommand))
-            {
+            } else if ("电脑黑方".equals(actionCommand)) {
                 android[BLACKPLAYSIGN] = !android[BLACKPLAYSIGN];
-                if (android[BLACKPLAYSIGN] && (BLACKPLAYSIGN == play || turn_num <= 0))
-                {
-                    if (turn_num <= 0)
-                    {
+                if (android[BLACKPLAYSIGN] && (BLACKPLAYSIGN == play || turn_num <= 0)) {
+                    if (turn_num <= 0) {
                         play = BLACKPLAYSIGN;
                         moveHistory.play = 1 - BLACKPLAYSIGN;
                     }
                     computeThinkStart();
                 }
-            }
-            else if ("HASH表小".equals(actionCommand))
-            {
-                if (turn_num == 0)
-                {
+            } else if ("HASH表小".equals(actionCommand)) {
+                if (turn_num == 0) {
                     TranspositionTable.setHashSize(0x7FFFF);
                 }
-            }
-            else if ("HASH表中".equals(actionCommand))
-            {
-                if (turn_num == 0)
-                {
+            } else if ("HASH表中".equals(actionCommand)) {
+                if (turn_num == 0) {
                     TranspositionTable.setHashSize(0xFFFFF);
                 }
-            }
-            else if ("HASH表大".equals(actionCommand))
-            {
-                if (turn_num == 0)
-                {
+            } else if ("HASH表大".equals(actionCommand)) {
+                if (turn_num == 0) {
                     TranspositionTable.setHashSize(0x1FFFFF);
                 }
-            }
-            else if ("后台思考".equals(actionCommand))
-            {
+            } else if ("后台思考".equals(actionCommand)) {
                 isBackstageThink = !isBackstageThink;
-            }
-            else if ("音效".equals(actionCommand))
-            {
+            } else if ("音效".equals(actionCommand)) {
                 isSound = !isSound;
             }
         }
 
     }
 
-    private void opponentMove()
-    {
+    private void opponentMove() {
         setHashTablesEnabled();
         //查看是否以胜利
-        if (!checkGameOver())
-        {
+        if (!checkGameOver()) {
             turn_num++;
             play = 1 - play; //交换双方
             //对手是否为电脑
-//            if (android[play])
-//            {
-//                //computeThinkStart();
-//                apiThink();
-//            }
+            if (android[play]) {
+                //computeThinkStart();
+                apiThink();
+            }
 
-            if (play==1)
+      /*      if (play==1)
             {
                 computeThinkStart();
             }
             else
             {
                 apiThink();
-            }
+            }*/
         }
     }
 
-    private void computeThinkStart()
-    {
+    private void computeThinkStart() {
         //设置后台思考
-        if (isBackstageThink && (guessLink != null && moveHistory != null))
-        {
+        if (isBackstageThink && (guessLink != null && moveHistory != null)) {
             //查看是否猜中
-            if (guessLink.getMoveNode().equals(moveHistory.getMoveNode()))
-            {
-                new Thread()
-                {
-                    public void run()
-                    {
+            if (guessLink.getMoveNode().equals(moveHistory.getMoveNode())) {
+                new Thread() {
+                    public void run() {
                         System.out.println("---->猜测命中！！");
-                        try
-                        {
+                        try {
                             //加入时间控制
                             backstageAIThink.launchTimer();
                             backstageThinkThread.join();
-                        }
-                        catch (InterruptedException e)
-                        {
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                             computeThink();
                         }
                         computeAIMoving(guessLink.getNextLink());
                     }
                 }.start();
-            }
-            else
-            {
-                new Thread()
-                {
-                    public void run()
-                    {
+            } else {
+                new Thread() {
+                    public void run() {
                         System.out.println("--->未命中");
                         //如果没中进行运算
                         backstageAIThink.setStop();
-                        try
-                        {
+                        try {
                             backstageThinkThread.join();
-                        }
-                        catch (InterruptedException e)
-                        {
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                         System.out.println("--->重新思考");
@@ -876,19 +765,14 @@ public class ChessBoardMain extends JFrame
                     }
                 }.start();
             }
-        }
-        else
-        {
+        } else {
             computeThink();
         }
     }
 
-    private void computeThink()
-    {
-        new Thread()
-        {
-            public void run()
-            {
+    private void computeThink() {
+        new Thread() {
+            public void run() {
                 _AIThink.setLocalVariable(computerLevel, chessParamCont, moveHistory);
                 _AIThink.launchTimer();
                 _AIThink.run();
@@ -901,12 +785,9 @@ public class ChessBoardMain extends JFrame
 
     private ProcessEngine processEngine = new ProcessEngine("pikafish-avx2.exe");
 
-    private void apiThink()
-    {
-        new Thread()
-        {
-            public void run()
-            {
+    private void apiThink() {
+        new Thread() {
+            public void run() {
 //                ApiTool api = new ApiTool();
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
 
@@ -939,12 +820,10 @@ public class ChessBoardMain extends JFrame
         }.start();
     }
 
-    private void computeAIMoving(NodeLink nodeLink)
-    {
+    private void computeAIMoving(NodeLink nodeLink) {
 
         // if(!checkGameOver()){
-        if (nodeLink != null && nodeLink.getMoveNode() != null)
-        {
+        if (nodeLink != null && nodeLink.getMoveNode() != null) {
             MoveNode moveNode = nodeLink.getMoveNode();
             showMoveNode(moveNode);
         }
@@ -957,19 +836,14 @@ public class ChessBoardMain extends JFrame
     private NodeLink guessLink;
 
     //后台思考
-    private void backstageThink()
-    {
-        if (!isBackstageThink)
-        {
+    private void backstageThink() {
+        if (!isBackstageThink) {
             return;
         }
-        if (moveHistory.getNextLink() != null && moveHistory.getNextLink().getMoveNode() != null)
-        {
+        if (moveHistory.getNextLink() != null && moveHistory.getNextLink().getMoveNode() != null) {
 
-            backstageThinkThread = new Thread()
-            {
-                public void run()
-                {
+            backstageThinkThread = new Thread() {
+                public void run() {
                     //猜测的着法
                     guessLink = moveHistory.getNextLink();
                     backstageAIThink.setLocalVariable(computerLevel, chessParamCont, guessLink);
@@ -981,18 +855,15 @@ public class ChessBoardMain extends JFrame
         }
     }
 
-    private void showMoveNode(MoveNode moveNode)
-    {
-        if (moveNode != null)
-        {
+    private void showMoveNode(MoveNode moveNode) {
+        if (moveNode != null) {
             move(moveNode);
             cmp.moveOperate(moveNode);
             transTable.synchroZobristBoardToStatic();
         }
     }
 
-    private void setHashTablesEnabled()
-    {
+    private void setHashTablesEnabled() {
         hashSize2M.setEnabled(false);
         hashSize32M.setEnabled(false);
         hashSize64M.setEnabled(false);
@@ -1001,44 +872,34 @@ public class ChessBoardMain extends JFrame
     /*
      * 记取上次保存记录
      */
-    public String readSaved()
-    {
+    public String readSaved() {
         String fen = null;
         FileInputStream fileInput = null;
-        try
-        {
+        try {
             File chessFile = new File("chess.txt");
             fileInput = new java.io.FileInputStream(chessFile);
             BufferedReader bufferedReader = new BufferedReader(
                     new java.io.InputStreamReader(fileInput));
 
-            while (bufferedReader.ready())
-            {
+            while (bufferedReader.ready()) {
                 fen = bufferedReader.readLine();
             }
-            if (fen != null)
-            {
+            if (fen != null) {
 //                if (JOptionPane.showConfirmDialog(this, "检测到有存档是否继续上次游戏?", "信息",
 //                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 //                {
-                    ObjectInputStream objInput = null;
-                    try
-                    {
-                        objInput = new ObjectInputStream(new FileInputStream("moves.dat"));
-                        moveHistory = (NodeLink) objInput.readObject();
-                        turn_num = 20;
+                ObjectInputStream objInput = null;
+                try {
+                    objInput = new ObjectInputStream(new FileInputStream("moves.dat"));
+                    moveHistory = (NodeLink) objInput.readObject();
+                    turn_num = 20;
+                } catch (Exception e) {
+                    System.err.println("========读取历史记录出错 moves.dat");
+                } finally {
+                    if (objInput != null) {
+                        objInput.close();
                     }
-                    catch (Exception e)
-                    {
-                        System.err.println("========读取历史记录出错 moves.dat");
-                    }
-                    finally
-                    {
-                        if (objInput != null)
-                        {
-                            objInput.close();
-                        }
-                    }
+                }
 //                }
 //                else
 //                {
@@ -1046,21 +907,13 @@ public class ChessBoardMain extends JFrame
 //                    fen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
 //                }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             fen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
-        }
-        finally
-        {
-            if (fileInput != null)
-            {
-                try
-                {
+        } finally {
+            if (fileInput != null) {
+                try {
                     fileInput.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -1068,15 +921,12 @@ public class ChessBoardMain extends JFrame
         return fen;
     }
 
-    public static void main(String args[])
-    {
+    public static void main(String args[]) {
         new ChessBoardMain();
     }
 
-    public void launchSound(int type)
-    {
-        if (isSound)
-        { //开启音效
+    public void launchSound(int type) {
+        if (isSound) { //开启音效
             new SoundEffect(type).start();
         }
     }
@@ -1090,8 +940,7 @@ public class ChessBoardMain extends JFrame
     private static final URL CAPTUREURL = ChessBoardMain.class.getResource(capturePath);
     private static final URL LOSSURL = ChessBoardMain.class.getResource(lossPath);
 
-    class SoundEffect extends Thread
-    {
+    class SoundEffect extends Thread {
         public final static int MOVE_SOUND = 1;
         public final static int CAPTURE_SOUND = 2;
         public final static int CHECKED_SOUND = 3;
@@ -1099,11 +948,9 @@ public class ChessBoardMain extends JFrame
 
         URL url = null;
 
-        public SoundEffect(int k)
-        {
+        public SoundEffect(int k) {
             this.setDaemon(true);
-            switch (k)
-            {
+            switch (k) {
                 case MOVE_SOUND:
                     url = MOVEPATHURL;
                     break;
@@ -1119,8 +966,7 @@ public class ChessBoardMain extends JFrame
             }
         }
 
-        public void run()
-        {
+        public void run() {
             AudioClip clip = Applet.newAudioClip(url);
             clip.play();
         }
