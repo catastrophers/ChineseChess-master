@@ -78,15 +78,16 @@ public class ChessBoardMain extends JFrame
     };
     int lastTimeCheckedSite = -1; //上次选中棋子的位置
     private ButtonActionListener my = new ButtonActionListener();
-    JLabel[] buttons = new JLabel[BOARDSIZE90];
+    JLabel[] buttons = new JLabel[BOARDSIZE90];         //定义90个按钮，即90个象棋，但未初始化
     int play = 1;
     volatile boolean[] android = new boolean[]{false, false};
     int begin = -1;
     int end = 0;
-    private static ComputerLevel computerLevel = ComputerLevel.greenHand; //默认
-    boolean isBackstageThink = false;
+    private static ComputerLevel computerLevel = ComputerLevel.greenHand; //默认电脑难度
+    boolean isBackstageThink = false;                                       //后台思考
     boolean computeFig = false;
 
+    //用来接收某一棋子可走的位置
     private List<Integer> realTips;
     private List<Integer> realTipsLast;
 

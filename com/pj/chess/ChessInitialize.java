@@ -24,7 +24,6 @@ import com.pj.chess.evaluate.EvaluateComputeMiddle;
 import com.pj.chess.zobrist.TranspositionTable;
 import static com.pj.chess.chessmove.ChessQuiescMove.*;
 /**
- * @author pengjiu
  * 棋子棋盘初始化操作
  * 棋子的着法预生成
  */
@@ -332,8 +331,6 @@ public class ChessInitialize {
 	 
 	 
 	/**
-	 *@author pengjiu 
-	 *@date:Sep 23, 2011 1:44:24 PM
 	 * 功能：车炮吃子与不吃子
 	 *@param moveEat 数组
 	 *@param direction 方向
@@ -450,8 +447,6 @@ public class ChessInitialize {
 		
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 26, 2011 5:09:07 PM
 	 * 功能： 生成马 and 象 不别腿所能攻击到的位置
 	 *@param attackBoard  预生成攻击位置
 	 *@param leg  攻击时的别腿位置
@@ -563,7 +558,6 @@ public class ChessInitialize {
 		return r;
 	}
 	/**
-	 *@author pengjiu 
 	 * index : 数组起始位置
 	 * a  : 数组
 	 * num : 从数组后面拿取几位
@@ -585,8 +579,6 @@ public class ChessInitialize {
 		return value;
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Sep 1, 2011 12:43:05 PM
 	 * 功能： 车炮机动性能预生成
 	 *@param moveSite
 	 *@param mobility
@@ -602,7 +594,7 @@ public class ChessInitialize {
 			}
 		}
 	}
-	/** @author pengjiu 
+	/**
 	 * @param moveSite 需要从之前预生成着法中遍历所有可行着法用来生成位棋盘
 	 * @param bitBoard 生成后赋值的位棋盘
 	 * @param type 0行  1 列
@@ -639,8 +631,6 @@ public class ChessInitialize {
 		
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 29, 2011 12:17:14 PM
 	 * 功能： 将的位棋盘生成
 	 *@param bitBoard
 	*/
@@ -713,8 +703,6 @@ public class ChessInitialize {
 		}
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 29, 2011 12:25:50 PM
 	 * 功能：士位棋盘
 	 *@param bitBoard
 	*/

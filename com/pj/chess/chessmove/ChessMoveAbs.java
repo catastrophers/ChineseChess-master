@@ -13,10 +13,7 @@ import com.pj.chess.evaluate.EvaluateCompute;
 import com.pj.chess.movelist.MoveNodeList;
 import com.pj.chess.zobrist.TranspositionTable;
 
-/**
- * @author Administrator
- *
- */
+
 public abstract class ChessMoveAbs {
 
  
@@ -216,8 +213,7 @@ public abstract class ChessMoveAbs {
 
 	
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 31, 2011 2:34:27 PM
+
 	 * 功能：着法合理性判断
 	 *@param play
 	 *@param moveNode
@@ -303,8 +299,6 @@ public abstract class ChessMoveAbs {
 
 	private static int[][] knights=new int[][]{{35,36},{19,20}};
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 31, 2011 5:36:05 PM
 	 * 功能： 将军判断
 	 *@param play
 	 *@return
@@ -369,8 +363,6 @@ public abstract class ChessMoveAbs {
 		
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Sep 20, 2011 2:13:54 PM
 	 * 功能： 被几个棋子将军
 	 *@param play
 	 *@return
@@ -443,8 +435,6 @@ public abstract class ChessMoveAbs {
 		return goodMoveList;
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 31, 2011 11:01:45 AM
 	 * 功能：生成所有吃子着法 note：(但所吃子的价值低于一定值时将不算为吃子着法中)
 	 *@param play
 	 *@param dumpMoveList
@@ -462,8 +452,6 @@ public abstract class ChessMoveAbs {
 	 }
 	
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 31, 2011 11:01:19 AM
 	 * 功能：生成不吃子着法列表
 	 *@param play 玩家
 	 *@param dumpMoveList  
@@ -704,8 +692,6 @@ public abstract class ChessMoveAbs {
 	}
 	
 	/**
-	 *@author pengjiu 
-	 *@date:Aug 10, 2011 12:40:22 PM
 	 * 功能：检测攻击的棋子是否为对手棋子
 	 *@param srcChess
 	 *@param destChess

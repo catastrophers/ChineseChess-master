@@ -10,10 +10,6 @@ import com.pj.chess.BitBoard;
 import com.pj.chess.ChessConstant;
 import com.pj.chess.Tools;
 
-/**
- * @author pengjiu
- * 为防止多线程下，一些所需要的参数变量同步问题
- */
 public class ChessParam {
 	public  int[] board;	 // 棋盘->棋子
 
