@@ -123,7 +123,6 @@ public abstract class  EvaluateCompute {
 	}
 	 
 	/**
-	 *@author pengjiu  
 	 * 功能：空头炮 
 	*/
 	protected int exposedCannon(int play,int oppkingSite,int row,int col){ 
@@ -135,7 +134,6 @@ public abstract class  EvaluateCompute {
 		return -1;
 	}
 	/**
-	 *@author pengjiu  
 	 * 功能：沉底炮
 	*/
 	protected int bottomCannon(int play,int oppkingSite,int row,int col){ 
@@ -147,7 +145,6 @@ public abstract class  EvaluateCompute {
 		return -1;
 	}
 	/**
-	 *@author pengjiu  
 	 * 功能：隔子车
 	*/
 	protected int restChariot(int play,int oppkingSite,int row,int col){ 
