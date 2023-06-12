@@ -47,7 +47,7 @@ public class BitBoard {
         Hi ^= Arg.Hi;
     }
 
-    public static BitBoard assignXorToNew(final BitBoard Arg, final BitBoard Arg1) {
+    public static BitBoard assignXorToNew(final BitBoard Arg, final BitBoard Arg1) {//“ÏªÚ
         BitBoard re = new BitBoard(Arg1);
         re.Low ^= Arg.Low;
         re.Mid1 ^= Arg.Mid1;

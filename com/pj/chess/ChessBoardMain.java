@@ -100,6 +100,7 @@ public class ChessBoardMain extends JFrame {
     private static boolean isSound = false;
 
     static boolean isReview = false;
+    static boolean dReview = false; //用来实现复盘时没有框选提示
 
     public void initHandler() {
         String startFen = "c6c5  rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1";
@@ -107,8 +108,10 @@ public class ChessBoardMain extends JFrame {
 //		String startFen="c6c5  9/CP2k4/9/9/9/9/9/9/9/4K4 b - - 0 1";
 //		Tools.parseFENtoBoardZobrist(fenStr);
 //        startFen = readSaved();
+        dReview = false;
         if (isReview) {
             isReview = false;
+            dReview = true;
             String tmp = readSaved();
             while (moveHistory.getLastLink() != null)
                 moveHistory = moveHistory.getLastLink();
@@ -341,6 +344,9 @@ public class ChessBoardMain extends JFrame {
             if (chessParamCont.board[list.get(i)] == -1) {//此位置没有棋子
                 buttons[list.get(i)].setIcon(getImageIcon("OOS"));
             }
+            /*else {
+                buttons[list.get(i)].setIcon(getImageIcon(chessIcon[chessParamCont.board[list.get(i)]] + "S"));
+            }*/
         }
     }
 
@@ -350,6 +356,9 @@ public class ChessBoardMain extends JFrame {
             if (chessParamCont.board[list.get(i)] == -1) {//此位置没有棋子
                 buttons[list.get(i)].setIcon(getImageIcon("OO"));
             }
+            /*else {
+                buttons[list.get(i)].setIcon(getImageIcon(chessIcon[chessParamCont.board[list.get(i)]]));
+            }*/
         }
     }
 
@@ -358,8 +367,8 @@ public class ChessBoardMain extends JFrame {
         List<Integer> list = new ArrayList<>();
         for (int i = 0; i < board.length; i++) {
             if (board[i] != 0) {
-                MoveNode moveNode = new MoveNode(start, board[i], chessParamCont.board[start], chessParamCont.board[i]);
-                if (new ChessMovePlay(chessParamCont,transTable,new EvaluateComputeMiddle(chessParamCont)).legalMove(play, moveNode)) {
+                MoveNode moveNode = new MoveNode(start, i, chessParamCont.board[start], chessParamCont.board[i]);
+                if (new ChessMovePlay(chessParamCont, transTable, new EvaluateComputeMiddle(chessParamCont)).legalMove(play, moveNode)) {
                     list.add(i);
                 }
             }
@@ -396,7 +405,9 @@ public class ChessBoardMain extends JFrame {
         }
         setBoardIconUnchecked(moveNode.srcSite, NOTHING);
         setBoardIconChecked(moveNode.destSite, moveNode.srcChess);
-        deleteTipIcons(realTipsLast);
+        if (!dReview) {
+            deleteTipIcons(my.getAllLegalTips(moveNode.srcSite, play));
+        }
         lastTimeCheckedSite = moveNode.destSite;
     }
 
@@ -544,18 +555,18 @@ public class ChessBoardMain extends JFrame {
                             begin = i;
 
                             setBoardIconChecked(i, chessParamCont.board[i]);   //选中的蓝框
-                            EvaluateCompute eva = new EvaluateComputeEndGame(chessParamCont);
-                            BitBoard bitBoardTemp = eva.chessAllMove(chessRoles[chessParamCont.board[i]], i, 1 - play);
-                            int[] tempTip = bitBoardTemp.bitBoardToBoard();
-                            realTips = getRealTips(tempTip, i);
-                            //System.out.println(bitBoardTemp);
-                            setTipIcons(realTips);
+
                             if (lastTimeCheckedSite != -1) {
                                 setBoardIconUnchecked(lastTimeCheckedSite, chessParamCont.board[lastTimeCheckedSite]);   //取消选中的蓝框
                                 deleteTipIcons(realTipsLast);
                             }
+
+                            realTips = getAllLegalTips(i, play);
+                            //System.out.println(bitBoardTemp);
+                            setTipIcons(realTips);
+
                             lastTimeCheckedSite = begin;
-                            realTipsLast=realTips;
+                            realTipsLast = realTips;
                         }
                         return;
                     } else if (begin == -1) {
@@ -575,6 +586,14 @@ public class ChessBoardMain extends JFrame {
                 }
             }
 
+        }
+
+        public List<Integer> getAllLegalTips(int site, int play) {
+            EvaluateCompute eva = new EvaluateComputeEndGame(chessParamCont);
+            BitBoard bitBoardTemp = eva.chessAllMove(chessRoles[chessParamCont.board[site]], site, play);
+            int[] tempTip = bitBoardTemp.bitBoardToBoard();
+            List<Integer> list = getRealTips(tempTip, site);
+            return list;
         }
 
         public void mouseReleased(MouseEvent e) {
@@ -792,7 +811,7 @@ public class ChessBoardMain extends JFrame {
 //                requestBoard = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKABNR b";
 
                 String requestBoard = "position fen ";
-                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 5";
+                requestBoard = requestBoard + Tools.toFEN(chessParamCont.board, moveHistory) + (play == 0 ? " b" : " w") + "\ngo depth 15";
 //                System.out.println(requestBoard);
                 String tmp = processEngine.getInformation(requestBoard);
                 System.out.println(tmp);
