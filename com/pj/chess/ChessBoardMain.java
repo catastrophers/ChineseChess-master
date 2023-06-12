@@ -719,12 +719,12 @@ public class ChessBoardMain extends JFrame
     {
         boolean isGameOver = false;
         String msg = null;
-        if ((cmp.checked(1) && play == 0))
+        if ((cmp.checked(1) && play == 1))
         {
             msg = ("黑方获胜!");
             isGameOver = true;
         }
-        else if ((cmp.checked(0) && play == 1))
+        else if ((cmp.checked(0) && play == 0))
         {
             msg = ("红方获胜!");
             isGameOver = true;
