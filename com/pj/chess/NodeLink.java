@@ -10,7 +10,6 @@ import java.io.Serializable;
 
 import com.pj.chess.chessmove.MoveNode;
 	/**棋子着法链表
-	 * @author pengjiu
 	 */
 	public class NodeLink implements Serializable{
 		private NodeLink lastLink;
@@ -23,7 +22,7 @@ import com.pj.chess.chessmove.MoveNode;
 		public boolean chk=false; //是否将军
 		//走棋方
 		public int play;
-		public boolean isQuiesc;
+		public boolean isQuiesc;				//?
 		public NodeLink(int play,int boardZobrist32,long boardZobrist64){
 			
 			//默认创建状态

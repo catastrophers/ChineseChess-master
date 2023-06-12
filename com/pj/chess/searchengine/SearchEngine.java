@@ -259,8 +259,6 @@ public abstract class SearchEngine implements Runnable{
 		return false;
 	}
 	/**
-	 *@author pengjiu 
-	 *@date:Sep 21, 2011 5:55:06 PM
 	 * ¹¦ÄÜ£ººÍÆåÅĞ¶Ï
 	 *@return
 	*/
