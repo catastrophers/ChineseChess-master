@@ -344,9 +344,9 @@ public class ChessBoardMain extends JFrame {
             if (chessParamCont.board[list.get(i)] == -1) {//此位置没有棋子
                 buttons[list.get(i)].setIcon(getImageIcon("OOS"));
             }
-            /*else {
+            else {
                 buttons[list.get(i)].setIcon(getImageIcon(chessIcon[chessParamCont.board[list.get(i)]] + "S"));
-            }*/
+            }
         }
     }
 
@@ -356,9 +356,9 @@ public class ChessBoardMain extends JFrame {
             if (chessParamCont.board[list.get(i)] == -1) {//此位置没有棋子
                 buttons[list.get(i)].setIcon(getImageIcon("OO"));
             }
-            /*else {
+            else {
                 buttons[list.get(i)].setIcon(getImageIcon(chessIcon[chessParamCont.board[list.get(i)]]));
-            }*/
+            }
         }
     }
 
@@ -399,16 +399,16 @@ public class ChessBoardMain extends JFrame {
     }
 
     public void move(MoveNode moveNode) {
-
+        if (!dReview) {
+            deleteTipIcons(getAllLegalTips(moveNode.srcSite, play));
+        }
         if (lastTimeCheckedSite != -1) {
             setBoardIconUnchecked(lastTimeCheckedSite, chessParamCont.board[lastTimeCheckedSite]);
         }
         setBoardIconUnchecked(moveNode.srcSite, NOTHING);
         setBoardIconChecked(moveNode.destSite, moveNode.srcChess);
-        if (!dReview) {
-            deleteTipIcons(my.getAllLegalTips(moveNode.srcSite, play));
-        }
         lastTimeCheckedSite = moveNode.destSite;
+
     }
 
     class ButtonActionListener implements ActionListener, WindowListener, MouseListener {
@@ -588,18 +588,20 @@ public class ChessBoardMain extends JFrame {
 
         }
 
-        public List<Integer> getAllLegalTips(int site, int play) {
-            EvaluateCompute eva = new EvaluateComputeEndGame(chessParamCont);
-            BitBoard bitBoardTemp = eva.chessAllMove(chessRoles[chessParamCont.board[site]], site, play);
-            int[] tempTip = bitBoardTemp.bitBoardToBoard();
-            List<Integer> list = getRealTips(tempTip, site);
-            return list;
-        }
+
 
         public void mouseReleased(MouseEvent e) {
             // TODO Auto-generated method stub
 
         }
+    }
+
+    public List<Integer> getAllLegalTips(int site, int play) {
+        EvaluateCompute eva = new EvaluateComputeEndGame(chessParamCont);
+        BitBoard bitBoardTemp = eva.chessAllMove(chessRoles[chessParamCont.board[site]], site, play);
+        int[] tempTip = bitBoardTemp.bitBoardToBoard();
+        List<Integer> list = getRealTips(tempTip, site);
+        return list;
     }
 
     public void gameOverMsg(String msg) {
