@@ -215,11 +215,13 @@ public class ChessInitialize {
 		int[] cnKnightMoveTab=new int[]{-0x21, -0x1f, -0x12, -0x0e, +0x0e, +0x12, +0x1f, +0x21}; 
 		int[] cnHorseLegTab=new int[]{-0x10, -0x10, -0x01, +0x01, -0x01, +0x01, +0x10, +0x10};
 		for(int site=0;site<255;site++){ 
-			if(isBoardTo255(site)){ 
+			//棋子在棋盘里
+			if(isBoardTo255(site)){
 				int z=0;
 				 for(int j=0;j<cnKnightMoveTab.length;j++){
 					 int _tKnight=site+cnKnightMoveTab[j];
 					 int _tHorseLeg=site+cnHorseLegTab[j];
+					 //日或者腿在棋盘里
 					 if(isBoardTo255(_tKnight) && isBoardTo255(_tHorseLeg)){ 
 						 int siteTo90=boardMap[site];
 						 int _tKnightTo90=boardMap[_tKnight];
@@ -236,6 +238,7 @@ public class ChessInitialize {
 						 //马的位棋盘
 						 KnightBitBoards[siteTo90].assignOr(new BitBoard(_tKnightTo90));
 						 KnightLegBitBoards[siteTo90].assignOr(new BitBoard(_tHorseLegTo90));
+						 System.out.println(KnightLegBitBoards[0]);
 						 
 					 }
 				 }
