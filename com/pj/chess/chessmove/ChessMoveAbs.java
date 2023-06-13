@@ -476,7 +476,6 @@ public abstract class ChessMoveAbs {
 			{17,18,19,20,21,22,27,28,29,30,31},
 			{33,34,35,36,37,38,43,44,45,46,47} };
 	/**
-	 *@author pengjiu 
 	 *@date:Aug 31, 2011 11:00:38 AM
 	 * 功能：	优先解将着法,普遍将军都会被化解 note:象士将 
 	 *@param play
